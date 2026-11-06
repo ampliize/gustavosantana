@@ -1,4 +1,4 @@
-"""Gera a lista CDS do index.html a partir dos dados lidos do Sua Música.
+"""Gera a lista CDS (os 6 mais recentes) do index.html a partir dos dados lidos do Sua Música.
 
 Uso: python3 scripts/build_cds.py <next.json do perfil> <covers.json dos álbuns>
 As capas ficam em assets/capas/<slug>.webp (500px quando disponível).
@@ -40,6 +40,9 @@ for slug, a in sorted(albums.items(), key=lambda kv: -kv[1]["id"]):
         "date": (c.get("date") or a.get("sendDate") or "")[:10],
         "faixas": len(c["files"]) if c.get("files") else None, "img": img,
     })
+
+LIMITE = 6  # só os CDs mais recentes
+rows = rows[:LIMITE]
 
 js = "const CDS = [\n" + "".join("  " + json.dumps(r, ensure_ascii=False) + ",\n" for r in rows) + "]"
 html = (ROOT / "index.html").read_text()
