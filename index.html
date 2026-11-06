@@ -430,28 +430,17 @@ const COVER_OPACITY = 0.62
 const SM_DATA = "06/11/2026"
 const SM_TOTAIS = { plays: 274030, downloads: 11511, seguidores: 1083 }
 
-// O CD novo. As faixas tocam direto do Sua Música, 1 minuto de cada, em loop.
+// A música do press kit: toca a faixa inteira, em loop, a partir do primeiro toque ou clique do visitante.
+const MUSICA = { name: "Universo Conspirou", src: "assets/universo-conspirou.mp3" }
+
+// O CD novo. A faixa da MUSICA toca aqui mesmo; as outras abrem o CD no Sua Música.
 const NOVO = {
   slug: "puro-sentimento-gustavo-santana",
   title: "Puro Sentimento",
-  base: "https://web.suamusica.com.br/55474791/5196929/",
-  faixas: [
-    ["Universo Conspirou", "UNIVERSO-CONSPIROU.mp3"],
-    ["Sigilo", "Sigilo.mp3"],
-    ["Eu Me Rendo", "EU-ME-RENDO.mp3"],
-    ["Anjo", "ANJO.mp3"],
-    ["Meu Sonho", "MEU-SONHO.mp3"],
-    ["Cadê a Localização?", "CAD%C3%8A-A-LOCALIZA%C3%87%C3%83O-.mp3"],
-    ["Violão e o Nosso Cachorro", "VIOL%C3%83O-E-O-NOSSO-CACHORRO-.mp3"],
-    ["Desejando Eu", "DESEJANDO-EU.mp3"],
-    ["Baby I Can Hold You", "BABY-I-CAN-HOLD-YOU.mp3"],
-    ["Mordida de Amor", "MORDIDA-DE-AMOR.mp3"],
-    ["Outra Vida", "OUTRA-VIDA.mp3"],
-    ["Romance Desapegado", "ROMANCE-DESAPEGADO.mp3"],
-    ["Me Diga Agora", "ME-DIGA-AGORA.mp3"],
-  ],
+  faixas: ["Universo Conspirou", "Sigilo", "Eu Me Rendo", "Anjo", "Meu Sonho", "Cadê a Localização?",
+    "Violão e o Nosso Cachorro", "Desejando Eu", "Baby I Can Hold You", "Mordida de Amor", "Outra Vida",
+    "Romance Desapegado", "Me Diga Agora"],
 }
-const CLIP_SECONDS = 60
 
 // Discografia, do mais novo para o mais antigo. Cada CD gira com a capa do seu álbum.
 /*CDS*/
@@ -898,47 +887,39 @@ if (TOP3.length) {
   setInterval(() => { if (!smHold && !document.hidden) showSM((smI + 1) % TOP3.length) }, 3600)
 }
 
-/* ---------- música: 1 minuto de cada faixa do novo CD, em loop ---------- */
-const snd = $("snd"), sndTxt = $("sndTxt"), audio = new Audio(), fxList = $("fxList")
-audio.preload = "none"
-let trk = 0, wantSound = true, fails = 0, dead = false
+/* ---------- música: a faixa do press kit, inteira e em loop ---------- */
+const snd = $("snd"), sndTxt = $("sndTxt"), audio = new Audio(MUSICA.src), fxList = $("fxList")
+audio.preload = "auto"
+audio.loop = true
+let wantSound = true
 const fmt = (s) => Math.floor(s / 60) + ":" + pad(Math.floor(s % 60))
-fxList.innerHTML = NOVO.faixas.map(([n], i) =>
-  '<li><button type="button" data-t="' + i + '" aria-label="Tocar ' + esc(n) + '"><span class="no">' + pad(i + 1) +
-  '</span><span class="nm">' + esc(n) + '</span><svg class="pl" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l13-7.5a1 1 0 0 0 0-1.72l-13-7.5A1 1 0 0 0 7 4.5Z"/></svg></button></li>').join("")
-function markTrack() {
-  ;[...fxList.querySelectorAll("button")].forEach((b, k) => (k === trk && !audio.paused ? b.setAttribute("aria-current", "true") : b.removeAttribute("aria-current")))
-}
-function loadTrack(i) { trk = i; audio.src = NOVO.base + NOVO.faixas[i][1] }
-function playNow() { if (dead) return; const pr = audio.play(); if (pr && pr.catch) pr.catch(() => {}) }
-function nextTrack() { loadTrack((trk + 1) % NOVO.faixas.length); if (wantSound) playNow() }
+const PLAY = '<svg class="pl" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l13-7.5a1 1 0 0 0 0-1.72l-13-7.5A1 1 0 0 0 7 4.5Z"/></svg>'
+const OUT = '<svg class="pl" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>'
+const mine = NOVO.faixas.indexOf(MUSICA.name)
+fxList.innerHTML = NOVO.faixas.map((n, i) =>
+  "<li>" + (i === mine
+    ? '<button type="button" id="fxMine" aria-label="Tocar ' + esc(n) + '">'
+    : '<button type="button" data-out aria-label="' + esc(n) + ', ouvir no Sua Música">') +
+  '<span class="no">' + pad(i + 1) + '</span><span class="nm">' + esc(n) + "</span>" + (i === mine ? PLAY : OUT) + "</button></li>").join("")
+const fxMine = $("fxMine")
+function playNow() { const pr = audio.play(); if (pr && pr.catch) pr.catch(() => {}) }
+function toggle() { if (audio.paused) { wantSound = true; playNow() } else { wantSound = false; audio.pause() } }
 function paintSound() {
   const on = !audio.paused && !audio.ended
   snd.setAttribute("aria-pressed", on ? "true" : "false")
-  snd.setAttribute("aria-label", on ? "Pausar música" : "Tocar música")
-  sndTxt.textContent = on ? NOVO.faixas[trk][0] + " · " + fmt(audio.currentTime) : "Tocar música"
-  markTrack()
+  snd.setAttribute("aria-label", on ? "Pausar " + MUSICA.name : "Tocar " + MUSICA.name)
+  sndTxt.textContent = on ? MUSICA.name + " · " + fmt(audio.currentTime) : "Tocar música"
+  if (fxMine) on ? fxMine.setAttribute("aria-current", "true") : fxMine.removeAttribute("aria-current")
 }
-audio.addEventListener("ended", nextTrack)
-audio.addEventListener("timeupdate", () => { if (audio.currentTime >= CLIP_SECONDS) nextTrack(); else paintSound() })
+audio.addEventListener("timeupdate", paintSound)
 audio.addEventListener("play", paintSound)
-audio.addEventListener("playing", () => { fails = 0; paintSound(); unarm() })
+audio.addEventListener("playing", () => { paintSound(); unarm() })
 audio.addEventListener("pause", paintSound)
-// se o Sua Música recusar o arquivo, tenta a próxima; depois de 3 falhas o botão vira um link para o CD
-audio.addEventListener("error", () => {
-  if (++fails >= 3) { dead = true; sndTxt.textContent = "Ouvir no Sua Música"; snd.setAttribute("aria-label", "Ouvir no Sua Música"); return }
-  nextTrack()
-})
-snd.addEventListener("click", () => {
-  if (dead) { window.open(SM_BASE + NOVO.slug, "_blank", "noopener"); return }
-  if (audio.paused) { wantSound = true; playNow() } else { wantSound = false; audio.pause() }
-})
+snd.addEventListener("click", toggle)
 fxList.addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return
-  if (dead) { window.open(SM_BASE + NOVO.slug, "_blank", "noopener"); return }
-  const i = +b.dataset.t
-  if (i === trk && !audio.paused) { wantSound = false; audio.pause(); return }
-  wantSound = true; loadTrack(i); playNow()
+  if (b.hasAttribute("data-out")) window.open(SM_BASE + NOVO.slug, "_blank", "noopener")
+  else toggle()
 })
 // o navegador só libera som depois de um toque, clique ou tecla: começa no primeiro
 const GESTURES = ["pointerdown", "keydown", "touchend"]
@@ -948,7 +929,7 @@ function arm(e) {
 }
 function unarm() { GESTURES.forEach((g) => window.removeEventListener(g, arm, true)) }
 GESTURES.forEach((g) => window.addEventListener(g, arm, true))
-loadTrack(0)
+playNow()
 
 /* ---------- início ---------- */
 measure()
