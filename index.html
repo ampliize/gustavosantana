@@ -198,7 +198,7 @@ a{color:inherit}
 }
 
 /* ---------- Sua Música (topo esquerdo) e dock de música (topo direito) ---------- */
-.sm{position:absolute;top:var(--pad);left:var(--pad);z-index:6;width:min(300px,calc(100% - var(--pad) * 2 - 116px));
+.sm{position:absolute;top:var(--pad);left:var(--pad);z-index:6;width:min(300px,calc(100% - var(--pad) * 2 - 168px));
   display:flex;flex-direction:column;gap:7px;padding:11px 13px 10px;border-radius:14px;
   background:var(--glass);border:1px solid var(--line);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
   box-shadow:0 14px 34px -20px rgba(36,7,10,.5)}
@@ -232,6 +232,11 @@ a{color:inherit}
   transition:background .2s,transform .2s}
 .pill:hover{background:#fff}
 .pill:active{transform:scale(.96)}
+.hire{background:#25d366;color:#062b14;border-color:transparent;font-weight:700;
+  box-shadow:0 12px 26px -12px rgba(0,0,0,.55);animation:hire-pulse 2.8s ease-out 2s infinite}
+.hire:hover{background:#25d366;filter:brightness(1.08)}
+@keyframes hire-pulse{0%{box-shadow:0 12px 26px -12px rgba(0,0,0,.55),0 0 0 0 rgba(37,211,102,.55)}
+  70%,100%{box-shadow:0 12px 26px -12px rgba(0,0,0,.55),0 0 0 14px rgba(37,211,102,0)}}
 .snd .ico-play{display:block}
 .snd .eq{display:none;align-items:flex-end;gap:2px;width:14px;height:14px}
 .snd[aria-pressed=true] .ico-play{display:none}
@@ -294,7 +299,7 @@ a{color:inherit}
 .foot a:focus-visible{outline-color:#ffd0cc}
 
 @media (prefers-reduced-motion:reduce){
-  .plate,.shine,.scene.pop .plate,.hint-in,.hint-ico svg,.slide[data-active] .idle,.head.in>*,.sm-rot.in>*,.eq i,.wall .r1,.wall .r2,.marq-in{animation:none}
+  .plate,.shine,.scene.pop .plate,.hint-in,.hint-ico svg,.slide[data-active] .idle,.head.in>*,.sm-rot.in>*,.eq i,.hire,.wall .r1,.wall .r2,.marq-in{animation:none}
   .tilt,.cta,.btn,.pill,.sm-dots i,.idx button::before,.hint-in{transition:none}
 }
 </style>
@@ -375,6 +380,10 @@ a{color:inherit}
     </aside>
 
     <div class="dock" id="dock">
+      <a class="pill hire" id="hire" hidden target="_blank" rel="noopener noreferrer" aria-label="Contratar show pelo WhatsApp">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>
+        <span class="lbl">Contratar show</span>
+      </a>
       <button class="pill" id="toTop" type="button" hidden aria-label="Voltar à capa">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
         <span class="lbl">Capa</span>
@@ -416,8 +425,8 @@ const LINKS = {
   suaMusica: "https://suamusica.com.br/gustavosantana",
   instagram: "https://www.instagram.com/gustavoosantana_/",
   // WhatsApp: só dígitos, com DDI e DDD. Ex.: "5571999999999". Vazio = o disco de WhatsApp não aparece.
-  whatsapp: "",
-  whatsappMensagem: "Olá! Vim pelo press kit do Gustavo Santana.",
+  whatsapp: "5579996548584",
+  whatsappMensagem: "Olá! Quero contratar o Gustavo Santana para um show.",
   // Pastas opcionais (fotos, mídia kit). Vazio = não aparece.
   fotos: "",
   midiaKit: "",
@@ -475,10 +484,11 @@ const ITEMS = CDS.map((c, i) => ({
 }))
 ITEMS.push({ title: "Instagram", kicker: "Contato", desc: "Bastidores, shows e novidades no perfil oficial.",
   cta: "@gustavoosantana_", href: LINKS.instagram, img: "assets/avatar.webp" })
-if (wa) ITEMS.push({ title: "WhatsApp", kicker: "Contratação", desc: "Contato direto para shows e eventos.",
-  cta: "Chamar no WhatsApp", href: "https://wa.me/" + wa + "?text=" + encodeURIComponent(LINKS.whatsappMensagem), img: "assets/avatar.webp" })
+if (wa) ITEMS.push({ title: "WhatsApp", kicker: "Contratação", desc: "Contrate para shows e eventos: (79) 99654-8584.",
+  cta: "Contratar show", href: "https://wa.me/" + wa + "?text=" + encodeURIComponent(LINKS.whatsappMensagem), img: "assets/avatar.webp" })
 if (LINKS.fotos) ITEMS.push({ title: "Fotos", kicker: "Galeria", desc: "A pasta com as fotos oficiais.", cta: "Ver fotos", href: LINKS.fotos, img: "assets/poster.webp" })
 if (LINKS.midiaKit) ITEMS.push({ title: "Mídia kit", kicker: "Materiais", desc: "Logos, release e materiais de divulgação.", cta: "Abrir pasta", href: LINKS.midiaKit, img: "assets/poster.webp" })
+if (wa) { const h = document.getElementById("hire"); h.href = "https://wa.me/" + wa + "?text=" + encodeURIComponent(LINKS.whatsappMensagem); h.hidden = false }
 const N = ITEMS.length
 
 const $ = (id) => document.getElementById(id)
@@ -536,7 +546,7 @@ const slides = ITEMS.map((it, i) => {
 idx.innerHTML = ITEMS.map((it, i) => '<button type="button" data-k="' + i + '" aria-label="' + esc(it.title) + '" title="' + esc(it.title) + '"></button>').join("")
 idx.addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) goTo(+b.dataset.k) })
 const foot = [["Sua Música", LINKS.suaMusica], ["Instagram", LINKS.instagram], ["Puro Sentimento", SM_BASE + NOVO.slug]]
-if (wa) foot.push(["WhatsApp", "https://wa.me/" + wa + "?text=" + encodeURIComponent(LINKS.whatsappMensagem)])
+if (wa) foot.unshift(["Contratar show", "https://wa.me/" + wa + "?text=" + encodeURIComponent(LINKS.whatsappMensagem)])
 if (LINKS.fotos) foot.push(["Fotos", LINKS.fotos])
 if (LINKS.midiaKit) foot.push(["Mídia kit", LINKS.midiaKit])
 $("footLinks").innerHTML = foot.map(([t, h]) => '<li><a href="' + esc(h) + '" target="_blank" rel="noopener noreferrer">' + esc(t) + "</a></li>").join("")
